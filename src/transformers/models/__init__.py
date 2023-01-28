@@ -17,6 +17,7 @@
 # limitations under the License.
 
 from . import (
+    my_fnet,
     albert,
     altclip,
     audio_spectrogram_transformer,

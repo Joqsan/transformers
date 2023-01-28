@@ -60,7 +60,7 @@ from ...utils import (
     logging,
     replace_return_docstrings,
 )
-from .configuration_bert import BertConfig
+from .configuration_my_fnet import MyFNetConfig
 
 
 logger = logging.get_logger(__name__)
@@ -145,7 +145,7 @@ class TFBertPreTrainingLoss:
 class TFBertEmbeddings(tf.keras.layers.Layer):
     """Construct the embeddings from word, position and token_type embeddings."""
 
-    def __init__(self, config: BertConfig, **kwargs):
+    def __init__(self, config: MyFNetConfig, **kwargs):
         super().__init__(**kwargs)
 
         self.config = config
@@ -230,7 +230,7 @@ class TFBertEmbeddings(tf.keras.layers.Layer):
 
 
 class TFBertSelfAttention(tf.keras.layers.Layer):
-    def __init__(self, config: BertConfig, **kwargs):
+    def __init__(self, config: MyFNetConfig, **kwargs):
         super().__init__(**kwargs)
 
         if config.hidden_size % config.num_attention_heads != 0:
@@ -347,7 +347,7 @@ class TFBertSelfAttention(tf.keras.layers.Layer):
 
 
 class TFBertSelfOutput(tf.keras.layers.Layer):
-    def __init__(self, config: BertConfig, **kwargs):
+    def __init__(self, config: MyFNetConfig, **kwargs):
         super().__init__(**kwargs)
 
         self.dense = tf.keras.layers.Dense(
@@ -365,7 +365,7 @@ class TFBertSelfOutput(tf.keras.layers.Layer):
 
 
 class TFBertAttention(tf.keras.layers.Layer):
-    def __init__(self, config: BertConfig, **kwargs):
+    def __init__(self, config: MyFNetConfig, **kwargs):
         super().__init__(**kwargs)
 
         self.self_attention = TFBertSelfAttention(config, name="self")
@@ -405,7 +405,7 @@ class TFBertAttention(tf.keras.layers.Layer):
 
 
 class TFBertIntermediate(tf.keras.layers.Layer):
-    def __init__(self, config: BertConfig, **kwargs):
+    def __init__(self, config: MyFNetConfig, **kwargs):
         super().__init__(**kwargs)
 
         self.dense = tf.keras.layers.Dense(
@@ -425,7 +425,7 @@ class TFBertIntermediate(tf.keras.layers.Layer):
 
 
 class TFBertOutput(tf.keras.layers.Layer):
-    def __init__(self, config: BertConfig, **kwargs):
+    def __init__(self, config: MyFNetConfig, **kwargs):
         super().__init__(**kwargs)
 
         self.dense = tf.keras.layers.Dense(
@@ -443,7 +443,7 @@ class TFBertOutput(tf.keras.layers.Layer):
 
 
 class TFBertLayer(tf.keras.layers.Layer):
-    def __init__(self, config: BertConfig, **kwargs):
+    def __init__(self, config: MyFNetConfig, **kwargs):
         super().__init__(**kwargs)
 
         self.attention = TFBertAttention(config, name="attention")
@@ -529,7 +529,7 @@ class TFBertLayer(tf.keras.layers.Layer):
 
 
 class TFBertEncoder(tf.keras.layers.Layer):
-    def __init__(self, config: BertConfig, **kwargs):
+    def __init__(self, config: MyFNetConfig, **kwargs):
         super().__init__(**kwargs)
         self.config = config
         self.layer = [TFBertLayer(config, name=f"layer_._{i}") for i in range(config.num_hidden_layers)]
@@ -598,7 +598,7 @@ class TFBertEncoder(tf.keras.layers.Layer):
 
 
 class TFBertPooler(tf.keras.layers.Layer):
-    def __init__(self, config: BertConfig, **kwargs):
+    def __init__(self, config: MyFNetConfig, **kwargs):
         super().__init__(**kwargs)
 
         self.dense = tf.keras.layers.Dense(
@@ -618,7 +618,7 @@ class TFBertPooler(tf.keras.layers.Layer):
 
 
 class TFBertPredictionHeadTransform(tf.keras.layers.Layer):
-    def __init__(self, config: BertConfig, **kwargs):
+    def __init__(self, config: MyFNetConfig, **kwargs):
         super().__init__(**kwargs)
 
         self.dense = tf.keras.layers.Dense(
@@ -643,7 +643,7 @@ class TFBertPredictionHeadTransform(tf.keras.layers.Layer):
 
 
 class TFBertLMPredictionHead(tf.keras.layers.Layer):
-    def __init__(self, config: BertConfig, input_embeddings: tf.keras.layers.Layer, **kwargs):
+    def __init__(self, config: MyFNetConfig, input_embeddings: tf.keras.layers.Layer, **kwargs):
         super().__init__(**kwargs)
 
         self.config = config
@@ -686,7 +686,7 @@ class TFBertLMPredictionHead(tf.keras.layers.Layer):
 
 
 class TFBertMLMHead(tf.keras.layers.Layer):
-    def __init__(self, config: BertConfig, input_embeddings: tf.keras.layers.Layer, **kwargs):
+    def __init__(self, config: MyFNetConfig, input_embeddings: tf.keras.layers.Layer, **kwargs):
         super().__init__(**kwargs)
 
         self.predictions = TFBertLMPredictionHead(config, input_embeddings, name="predictions")
@@ -698,7 +698,7 @@ class TFBertMLMHead(tf.keras.layers.Layer):
 
 
 class TFBertNSPHead(tf.keras.layers.Layer):
-    def __init__(self, config: BertConfig, **kwargs):
+    def __init__(self, config: MyFNetConfig, **kwargs):
         super().__init__(**kwargs)
 
         self.seq_relationship = tf.keras.layers.Dense(
@@ -715,9 +715,9 @@ class TFBertNSPHead(tf.keras.layers.Layer):
 
 @keras_serializable
 class TFBertMainLayer(tf.keras.layers.Layer):
-    config_class = BertConfig
+    config_class = MyFNetConfig
 
-    def __init__(self, config: BertConfig, add_pooling_layer: bool = True, **kwargs):
+    def __init__(self, config: MyFNetConfig, add_pooling_layer: bool = True, **kwargs):
         super().__init__(**kwargs)
 
         self.config = config
@@ -907,7 +907,7 @@ class TFBertPreTrainedModel(TFPreTrainedModel):
     models.
     """
 
-    config_class = BertConfig
+    config_class = MyFNetConfig
     base_model_prefix = "bert"
 
     @property
@@ -1063,7 +1063,7 @@ BERT_INPUTS_DOCSTRING = r"""
     BERT_START_DOCSTRING,
 )
 class TFBertModel(TFBertPreTrainedModel):
-    def __init__(self, config: BertConfig, *inputs, **kwargs):
+    def __init__(self, config: MyFNetConfig, *inputs, **kwargs):
         super().__init__(config, *inputs, **kwargs)
 
         self.bert = TFBertMainLayer(config, name="bert")
@@ -1166,7 +1166,7 @@ class TFBertForPreTraining(TFBertPreTrainedModel, TFBertPreTrainingLoss):
         r"cls.predictions.decoder.bias",
     ]
 
-    def __init__(self, config: BertConfig, *inputs, **kwargs):
+    def __init__(self, config: MyFNetConfig, *inputs, **kwargs):
         super().__init__(config, *inputs, **kwargs)
 
         self.bert = TFBertMainLayer(config, name="bert")
@@ -1284,7 +1284,7 @@ class TFBertForMaskedLM(TFBertPreTrainedModel, TFMaskedLanguageModelingLoss):
         r"nsp___cls",
     ]
 
-    def __init__(self, config: BertConfig, *inputs, **kwargs):
+    def __init__(self, config: MyFNetConfig, *inputs, **kwargs):
         super().__init__(config, *inputs, **kwargs)
 
         if config.is_decoder:
@@ -1375,7 +1375,7 @@ class TFBertLMHeadModel(TFBertPreTrainedModel, TFCausalLanguageModelingLoss):
         r"nsp___cls",
     ]
 
-    def __init__(self, config: BertConfig, *inputs, **kwargs):
+    def __init__(self, config: MyFNetConfig, *inputs, **kwargs):
         super().__init__(config, *inputs, **kwargs)
 
         if not config.is_decoder:
@@ -1512,7 +1512,7 @@ class TFBertForNextSentencePrediction(TFBertPreTrainedModel, TFNextSentencePredi
     # names with a '.' represents the authorized unexpected/missing layers when a TF model is loaded from a PT model
     _keys_to_ignore_on_load_unexpected = [r"mlm___cls", r"cls.predictions"]
 
-    def __init__(self, config: BertConfig, *inputs, **kwargs):
+    def __init__(self, config: MyFNetConfig, *inputs, **kwargs):
         super().__init__(config, *inputs, **kwargs)
 
         self.bert = TFBertMainLayer(config, name="bert")
@@ -1604,7 +1604,7 @@ class TFBertForSequenceClassification(TFBertPreTrainedModel, TFSequenceClassific
     _keys_to_ignore_on_load_unexpected = [r"mlm___cls", r"nsp___cls", r"cls.predictions", r"cls.seq_relationship"]
     _keys_to_ignore_on_load_missing = [r"dropout"]
 
-    def __init__(self, config: BertConfig, *inputs, **kwargs):
+    def __init__(self, config: MyFNetConfig, *inputs, **kwargs):
         super().__init__(config, *inputs, **kwargs)
 
         self.num_labels = config.num_labels
@@ -1696,7 +1696,7 @@ class TFBertForMultipleChoice(TFBertPreTrainedModel, TFMultipleChoiceLoss):
     _keys_to_ignore_on_load_unexpected = [r"mlm___cls", r"nsp___cls", r"cls.predictions", r"cls.seq_relationship"]
     _keys_to_ignore_on_load_missing = [r"dropout"]
 
-    def __init__(self, config: BertConfig, *inputs, **kwargs):
+    def __init__(self, config: MyFNetConfig, *inputs, **kwargs):
         super().__init__(config, *inputs, **kwargs)
 
         self.bert = TFBertMainLayer(config, name="bert")
@@ -1831,7 +1831,7 @@ class TFBertForTokenClassification(TFBertPreTrainedModel, TFTokenClassificationL
     ]
     _keys_to_ignore_on_load_missing = [r"dropout"]
 
-    def __init__(self, config: BertConfig, *inputs, **kwargs):
+    def __init__(self, config: MyFNetConfig, *inputs, **kwargs):
         super().__init__(config, *inputs, **kwargs)
 
         self.num_labels = config.num_labels
@@ -1926,7 +1926,7 @@ class TFBertForQuestionAnswering(TFBertPreTrainedModel, TFQuestionAnsweringLoss)
         r"cls.seq_relationship",
     ]
 
-    def __init__(self, config: BertConfig, *inputs, **kwargs):
+    def __init__(self, config: MyFNetConfig, *inputs, **kwargs):
         super().__init__(config, *inputs, **kwargs)
 
         self.num_labels = config.num_labels

@@ -30,8 +30,8 @@ from ...utils import (
 
 
 _import_structure = {
-    "configuration_bert": ["BERT_PRETRAINED_CONFIG_ARCHIVE_MAP", "BertConfig", "BertOnnxConfig"],
-    "tokenization_bert": ["BasicTokenizer", "BertTokenizer", "WordpieceTokenizer"],
+    "configuration_my_fnet": ["BERT_PRETRAINED_CONFIG_ARCHIVE_MAP", "MyFNetConfig", "BertOnnxConfig"],
+    "tokenization_my_fnet": ["BasicTokenizer", "BertTokenizer", "WordpieceTokenizer"],
 }
 
 try:
@@ -40,7 +40,7 @@ try:
 except OptionalDependencyNotAvailable:
     pass
 else:
-    _import_structure["tokenization_bert_fast"] = ["BertTokenizerFast"]
+    _import_structure["tokenization_my_fnet_fast"] = ["BertTokenizerFast"]
 
 try:
     if not is_torch_available():
@@ -48,19 +48,19 @@ try:
 except OptionalDependencyNotAvailable:
     pass
 else:
-    _import_structure["modeling_bert"] = [
+    _import_structure["modeling_my_fnet"] = [
         "BERT_PRETRAINED_MODEL_ARCHIVE_LIST",
-        "BertForMaskedLM",
-        "BertForMultipleChoice",
-        "BertForNextSentencePrediction",
-        "BertForPreTraining",
-        "BertForQuestionAnswering",
-        "BertForSequenceClassification",
-        "BertForTokenClassification",
-        "BertLayer",
-        "BertLMHeadModel",
-        "BertModel",
-        "BertPreTrainedModel",
+        "MyFNetForMaskedLM",
+        "MyFNetForMultipleChoice",
+        "MyFNetForNextSentencePrediction",
+        "MyFNetForPreTraining",
+        "MyFNetForQuestionAnswering",
+        "MyFNetForSequenceClassification",
+        "MyFNetForTokenClassification",
+        "MyFNetLayer",
+        "MyFNetLMHeadModel",
+        "MyFNetModel",
+        "MyFNetPreTrainedModel",
         "load_tf_weights_in_bert",
     ]
 
@@ -113,7 +113,7 @@ else:
     ]
 
 if TYPE_CHECKING:
-    from .configuration_bert import BERT_PRETRAINED_CONFIG_ARCHIVE_MAP, BertConfig, BertOnnxConfig
+    from .configuration_my_fnet import BERT_PRETRAINED_CONFIG_ARCHIVE_MAP, MyFNetConfig, BertOnnxConfig
     from .tokenization_bert import BasicTokenizer, BertTokenizer, WordpieceTokenizer
 
     try:
@@ -130,19 +130,19 @@ if TYPE_CHECKING:
     except OptionalDependencyNotAvailable:
         pass
     else:
-        from .modeling_bert import (
+        from .modeling_my_fnet import (
             BERT_PRETRAINED_MODEL_ARCHIVE_LIST,
-            BertForMaskedLM,
-            BertForMultipleChoice,
-            BertForNextSentencePrediction,
-            BertForPreTraining,
-            BertForQuestionAnswering,
-            BertForSequenceClassification,
-            BertForTokenClassification,
-            BertLayer,
-            BertLMHeadModel,
-            BertModel,
-            BertPreTrainedModel,
+            MyFNetForMaskedLM,
+            MyFNetForMultipleChoice,
+            MyFNetForNextSentencePrediction,
+            MyFNetForPreTraining,
+            MyFNetForQuestionAnswering,
+            MyFNetForSequenceClassification,
+            MyFNetForTokenClassification,
+            MyFNetLayer,
+            MyFNetLMHeadModel,
+            MyFNetModel,
+            MyFNetPreTrainedModel,
             load_tf_weights_in_bert,
         )
 

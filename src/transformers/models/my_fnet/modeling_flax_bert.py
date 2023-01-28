@@ -48,7 +48,7 @@ from ...modeling_flax_utils import (
     overwrite_call_docstring,
 )
 from ...utils import ModelOutput, add_start_docstrings, add_start_docstrings_to_model_forward, logging
-from .configuration_bert import BertConfig
+from .configuration_my_fnet import MyFNetConfig
 
 
 logger = logging.get_logger(__name__)
@@ -178,7 +178,7 @@ BERT_INPUTS_DOCSTRING = r"""
 class FlaxBertEmbeddings(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings."""
 
-    config: BertConfig
+    config: MyFNetConfig
     dtype: jnp.dtype = jnp.float32  # the dtype of the computation
 
     def setup(self):
@@ -219,7 +219,7 @@ class FlaxBertEmbeddings(nn.Module):
 
 
 class FlaxBertSelfAttention(nn.Module):
-    config: BertConfig
+    config: MyFNetConfig
     causal: bool = False
     dtype: jnp.dtype = jnp.float32  # the dtype of the computation
 
@@ -390,7 +390,7 @@ class FlaxBertSelfAttention(nn.Module):
 
 
 class FlaxBertSelfOutput(nn.Module):
-    config: BertConfig
+    config: MyFNetConfig
     dtype: jnp.dtype = jnp.float32  # the dtype of the computation
 
     def setup(self):
@@ -410,7 +410,7 @@ class FlaxBertSelfOutput(nn.Module):
 
 
 class FlaxBertAttention(nn.Module):
-    config: BertConfig
+    config: MyFNetConfig
     causal: bool = False
     dtype: jnp.dtype = jnp.float32
 
@@ -452,7 +452,7 @@ class FlaxBertAttention(nn.Module):
 
 
 class FlaxBertIntermediate(nn.Module):
-    config: BertConfig
+    config: MyFNetConfig
     dtype: jnp.dtype = jnp.float32  # the dtype of the computation
 
     def setup(self):
@@ -470,7 +470,7 @@ class FlaxBertIntermediate(nn.Module):
 
 
 class FlaxBertOutput(nn.Module):
-    config: BertConfig
+    config: MyFNetConfig
     dtype: jnp.dtype = jnp.float32  # the dtype of the computation
 
     def setup(self):
@@ -490,7 +490,7 @@ class FlaxBertOutput(nn.Module):
 
 
 class FlaxBertLayer(nn.Module):
-    config: BertConfig
+    config: MyFNetConfig
     dtype: jnp.dtype = jnp.float32  # the dtype of the computation
 
     def setup(self):
@@ -547,7 +547,7 @@ class FlaxBertLayer(nn.Module):
 
 
 class FlaxBertLayerCollection(nn.Module):
-    config: BertConfig
+    config: MyFNetConfig
     dtype: jnp.dtype = jnp.float32  # the dtype of the computation
     gradient_checkpointing: bool = False
 
@@ -628,7 +628,7 @@ class FlaxBertLayerCollection(nn.Module):
 
 
 class FlaxBertEncoder(nn.Module):
-    config: BertConfig
+    config: MyFNetConfig
     dtype: jnp.dtype = jnp.float32  # the dtype of the computation
     gradient_checkpointing: bool = False
 
@@ -667,7 +667,7 @@ class FlaxBertEncoder(nn.Module):
 
 
 class FlaxBertPooler(nn.Module):
-    config: BertConfig
+    config: MyFNetConfig
     dtype: jnp.dtype = jnp.float32  # the dtype of the computation
 
     def setup(self):
@@ -684,7 +684,7 @@ class FlaxBertPooler(nn.Module):
 
 
 class FlaxBertPredictionHeadTransform(nn.Module):
-    config: BertConfig
+    config: MyFNetConfig
     dtype: jnp.dtype = jnp.float32
 
     def setup(self):
@@ -699,7 +699,7 @@ class FlaxBertPredictionHeadTransform(nn.Module):
 
 
 class FlaxBertLMPredictionHead(nn.Module):
-    config: BertConfig
+    config: MyFNetConfig
     dtype: jnp.dtype = jnp.float32
     bias_init: Callable[..., np.ndarray] = jax.nn.initializers.zeros
 
@@ -722,7 +722,7 @@ class FlaxBertLMPredictionHead(nn.Module):
 
 
 class FlaxBertOnlyMLMHead(nn.Module):
-    config: BertConfig
+    config: MyFNetConfig
     dtype: jnp.dtype = jnp.float32
 
     def setup(self):
@@ -744,7 +744,7 @@ class FlaxBertOnlyNSPHead(nn.Module):
 
 
 class FlaxBertPreTrainingHeads(nn.Module):
-    config: BertConfig
+    config: MyFNetConfig
     dtype: jnp.dtype = jnp.float32
 
     def setup(self):
@@ -763,13 +763,13 @@ class FlaxBertPreTrainedModel(FlaxPreTrainedModel):
     models.
     """
 
-    config_class = BertConfig
+    config_class = MyFNetConfig
     base_model_prefix = "bert"
     module_class: nn.Module = None
 
     def __init__(
         self,
-        config: BertConfig,
+        config: MyFNetConfig,
         input_shape: Tuple = (1, 1),
         seed: int = 0,
         dtype: jnp.dtype = jnp.float32,
@@ -953,7 +953,7 @@ class FlaxBertPreTrainedModel(FlaxPreTrainedModel):
 
 
 class FlaxBertModule(nn.Module):
-    config: BertConfig
+    config: MyFNetConfig
     dtype: jnp.dtype = jnp.float32  # the dtype of the computation
     add_pooling_layer: bool = True
     gradient_checkpointing: bool = False
@@ -1035,7 +1035,7 @@ append_call_sample_docstring(FlaxBertModel, _CHECKPOINT_FOR_DOC, FlaxBaseModelOu
 
 
 class FlaxBertForPreTrainingModule(nn.Module):
-    config: BertConfig
+    config: MyFNetConfig
     dtype: jnp.dtype = jnp.float32
     gradient_checkpointing: bool = False
 
@@ -1136,7 +1136,7 @@ append_replace_return_docstrings(
 
 
 class FlaxBertForMaskedLMModule(nn.Module):
-    config: BertConfig
+    config: MyFNetConfig
     dtype: jnp.dtype = jnp.float32
     gradient_checkpointing: bool = False
 
@@ -1202,7 +1202,7 @@ append_call_sample_docstring(FlaxBertForMaskedLM, _CHECKPOINT_FOR_DOC, FlaxMaske
 
 
 class FlaxBertForNextSentencePredictionModule(nn.Module):
-    config: BertConfig
+    config: MyFNetConfig
     dtype: jnp.dtype = jnp.float32
     gradient_checkpointing: bool = False
 
@@ -1294,7 +1294,7 @@ append_replace_return_docstrings(
 
 
 class FlaxBertForSequenceClassificationModule(nn.Module):
-    config: BertConfig
+    config: MyFNetConfig
     dtype: jnp.dtype = jnp.float32
     gradient_checkpointing: bool = False
 
@@ -1374,7 +1374,7 @@ append_call_sample_docstring(
 
 
 class FlaxBertForMultipleChoiceModule(nn.Module):
-    config: BertConfig
+    config: MyFNetConfig
     dtype: jnp.dtype = jnp.float32
     gradient_checkpointing: bool = False
 
@@ -1454,7 +1454,7 @@ append_call_sample_docstring(
 
 
 class FlaxBertForTokenClassificationModule(nn.Module):
-    config: BertConfig
+    config: MyFNetConfig
     dtype: jnp.dtype = jnp.float32
     gradient_checkpointing: bool = False
 
@@ -1529,7 +1529,7 @@ append_call_sample_docstring(
 
 
 class FlaxBertForQuestionAnsweringModule(nn.Module):
-    config: BertConfig
+    config: MyFNetConfig
     dtype: jnp.dtype = jnp.float32
     gradient_checkpointing: bool = False
 
@@ -1605,7 +1605,7 @@ append_call_sample_docstring(
 
 
 class FlaxBertForCausalLMModule(nn.Module):
-    config: BertConfig
+    config: MyFNetConfig
     dtype: jnp.dtype = jnp.float32
     gradient_checkpointing: bool = False
 

@@ -22,7 +22,7 @@ from ...utils import logging
 logger = logging.get_logger(__name__)
 
 
-class BertConfig(PretrainedConfig):
+class MyFNetConfig(PretrainedConfig):
 
     model_type = "my_fnet"
 

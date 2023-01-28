@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""PyTorch BERT model."""
+"""PyTorch FNet model."""
 
 
 import math
@@ -49,13 +49,12 @@ from ...utils import (
     logging,
     replace_return_docstrings,
 )
-from .configuration_bert import BertConfig
-
+from .configuration_my_fnet import MyFNetConfig
 
 logger = logging.get_logger(__name__)
 
 _CHECKPOINT_FOR_DOC = "bert-base-uncased"
-_CONFIG_FOR_DOC = "BertConfig"
+_CONFIG_FOR_DOC = "MyFNetConfig"
 
 # TokenClassification docstring
 _CHECKPOINT_FOR_TOKEN_CLASSIFICATION = "dbmdz/bert-large-cased-finetuned-conll03-english"
@@ -102,6 +101,7 @@ BERT_PRETRAINED_MODEL_ARCHIVE_LIST = [
     "wietsedv/bert-base-dutch-cased",
     # See all BERT models at https://huggingface.co/models?filter=bert
 ]
+
 
 
 def load_tf_weights_in_bert(model, config, tf_checkpoint_path):
@@ -177,7 +177,7 @@ def load_tf_weights_in_bert(model, config, tf_checkpoint_path):
     return model
 
 
-class BertEmbeddings(nn.Module):
+class MyFNetEmbeddings(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings."""
 
     def __init__(self, config):
@@ -239,7 +239,7 @@ class BertEmbeddings(nn.Module):
         return embeddings
 
 
-class BertSelfOutput(nn.Module):
+class MyFNetSelfOutput(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
@@ -253,11 +253,11 @@ class BertSelfOutput(nn.Module):
         return hidden_states
 
 
-class BertAttention(nn.Module):
+class MyFNetAttention(nn.Module):
     def __init__(self, config, position_embedding_type=None):
         super().__init__()
         self.fft2 = lambda x: (torch.fft.fft2(x).real,)
-        self.output = BertSelfOutput(config)
+        self.output = MyFNetSelfOutput(config)
 
     def forward(
         self,
@@ -275,7 +275,7 @@ class BertAttention(nn.Module):
         return outputs
 
 
-class BertIntermediate(nn.Module):
+class MyFNetIntermediate(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
@@ -290,7 +290,7 @@ class BertIntermediate(nn.Module):
         return hidden_states
 
 
-class BertOutput(nn.Module):
+class MyFNetOutput(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
@@ -304,20 +304,20 @@ class BertOutput(nn.Module):
         return hidden_states
 
 
-class BertLayer(nn.Module):
+class MyFNetLayer(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
-        self.attention = BertAttention(config)
+        self.attention = MyFNetAttention(config)
         self.is_decoder = config.is_decoder
         self.add_cross_attention = config.add_cross_attention
         if self.add_cross_attention:
             if not self.is_decoder:
                 raise ValueError(f"{self} should be used as a decoder model if cross attention is added")
-            self.crossattention = BertAttention(config, position_embedding_type="absolute")
-        self.intermediate = BertIntermediate(config)
-        self.output = BertOutput(config)
+            self.crossattention = MyFNetAttention(config, position_embedding_type="absolute")
+        self.intermediate = MyFNetIntermediate(config)
+        self.output = MyFNetOutput(config)
 
     def forward(
         self,
@@ -390,11 +390,11 @@ class BertLayer(nn.Module):
         return layer_output
 
 
-class BertEncoder(nn.Module):
+class MyFNetEncoder(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.layer = nn.ModuleList([BertLayer(config) for _ in range(config.num_hidden_layers)])
+        self.layer = nn.ModuleList([MyFNetLayer(config) for _ in range(config.num_hidden_layers)])
         self.gradient_checkpointing = False
 
     def forward(
@@ -487,7 +487,7 @@ class BertEncoder(nn.Module):
         )
 
 
-class BertPooler(nn.Module):
+class MyFNetPooler(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
@@ -502,7 +502,7 @@ class BertPooler(nn.Module):
         return pooled_output
 
 
-class BertPredictionHeadTransform(nn.Module):
+class MyFNetPredictionHeadTransform(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
@@ -519,10 +519,10 @@ class BertPredictionHeadTransform(nn.Module):
         return hidden_states
 
 
-class BertLMPredictionHead(nn.Module):
+class MyFNetLMPredictionHead(nn.Module):
     def __init__(self, config):
         super().__init__()
-        self.transform = BertPredictionHeadTransform(config)
+        self.transform = MyFNetPredictionHeadTransform(config)
 
         # The output weights are the same as the input embeddings, but there is
         # an output-only bias for each token.
@@ -539,17 +539,17 @@ class BertLMPredictionHead(nn.Module):
         return hidden_states
 
 
-class BertOnlyMLMHead(nn.Module):
+class MyFNetOnlyMLMHead(nn.Module):
     def __init__(self, config):
         super().__init__()
-        self.predictions = BertLMPredictionHead(config)
+        self.predictions = MyFNetLMPredictionHead(config)
 
     def forward(self, sequence_output: torch.Tensor) -> torch.Tensor:
         prediction_scores = self.predictions(sequence_output)
         return prediction_scores
 
 
-class BertOnlyNSPHead(nn.Module):
+class MyFNetOnlyNSPHead(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.seq_relationship = nn.Linear(config.hidden_size, 2)
@@ -559,10 +559,10 @@ class BertOnlyNSPHead(nn.Module):
         return seq_relationship_score
 
 
-class BertPreTrainingHeads(nn.Module):
+class MyFNetPreTrainingHeads(nn.Module):
     def __init__(self, config):
         super().__init__()
-        self.predictions = BertLMPredictionHead(config)
+        self.predictions = MyFNetLMPredictionHead(config)
         self.seq_relationship = nn.Linear(config.hidden_size, 2)
 
     def forward(self, sequence_output, pooled_output):
@@ -571,13 +571,13 @@ class BertPreTrainingHeads(nn.Module):
         return prediction_scores, seq_relationship_score
 
 
-class BertPreTrainedModel(PreTrainedModel):
+class MyFNetPreTrainedModel(PreTrainedModel):
     """
     An abstract class to handle weights initialization and a simple interface for downloading and loading pretrained
     models.
     """
 
-    config_class = BertConfig
+    config_class = MyFNetConfig
     load_tf_weights = load_tf_weights_in_bert
     base_model_prefix = "bert"
     supports_gradient_checkpointing = True
@@ -600,12 +600,12 @@ class BertPreTrainedModel(PreTrainedModel):
             module.weight.data.fill_(1.0)
 
     def _set_gradient_checkpointing(self, module, value=False):
-        if isinstance(module, BertEncoder):
+        if isinstance(module, MyFNetEncoder):
             module.gradient_checkpointing = value
 
 
 @dataclass
-class BertForPreTrainingOutput(ModelOutput):
+class MyFNetForPreTrainingOutput(ModelOutput):
     """
     Output type of [`BertForPreTraining`].
 
@@ -636,7 +636,6 @@ class BertForPreTrainingOutput(ModelOutput):
     seq_relationship_logits: torch.FloatTensor = None
     hidden_states: Optional[Tuple[torch.FloatTensor]] = None
     attentions: Optional[Tuple[torch.FloatTensor]] = None
-
 
 BERT_START_DOCSTRING = r"""
 
@@ -708,7 +707,8 @@ BERT_INPUTS_DOCSTRING = r"""
     "The bare Bert Model transformer outputting raw hidden-states without any specific head on top.",
     BERT_START_DOCSTRING,
 )
-class BertModel(BertPreTrainedModel):
+
+class MyFNetModel(MyFNetPreTrainedModel):
     """
 
     The model can behave as an encoder (with only self-attention) as well as a decoder, in which case a layer of
@@ -725,10 +725,10 @@ class BertModel(BertPreTrainedModel):
         super().__init__(config)
         self.config = config
 
-        self.embeddings = BertEmbeddings(config)
-        self.encoder = BertEncoder(config)
+        self.embeddings = MyFNetEmbeddings(config)
+        self.encoder = MyFNetEncoder(config)
 
-        self.pooler = BertPooler(config) if add_pooling_layer else None
+        self.pooler = MyFNetPooler(config) if add_pooling_layer else None
 
         # Initialize weights and apply final processing
         self.post_init()
@@ -890,14 +890,14 @@ class BertModel(BertPreTrainedModel):
     """,
     BERT_START_DOCSTRING,
 )
-class BertForPreTraining(BertPreTrainedModel):
+class MyFNetForPreTraining(MyFNetPreTrainedModel):
     _keys_to_ignore_on_load_missing = [r"position_ids", r"predictions.decoder.bias", r"cls.predictions.decoder.weight"]
 
     def __init__(self, config):
         super().__init__(config)
 
-        self.bert = BertModel(config)
-        self.cls = BertPreTrainingHeads(config)
+        self.bert = MyFNetModel(config)
+        self.cls = MyFNetPreTrainingHeads(config)
 
         # Initialize weights and apply final processing
         self.post_init()
@@ -909,7 +909,7 @@ class BertForPreTraining(BertPreTrainedModel):
         self.cls.predictions.decoder = new_embeddings
 
     @add_start_docstrings_to_model_forward(BERT_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
-    @replace_return_docstrings(output_type=BertForPreTrainingOutput, config_class=_CONFIG_FOR_DOC)
+    @replace_return_docstrings(output_type=MyFNetForPreTrainingOutput, config_class=_CONFIG_FOR_DOC)
     def forward(
         self,
         input_ids: Optional[torch.Tensor] = None,
@@ -923,7 +923,7 @@ class BertForPreTraining(BertPreTrainedModel):
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
         return_dict: Optional[bool] = None,
-    ) -> Union[Tuple[torch.Tensor], BertForPreTrainingOutput]:
+    ) -> Union[Tuple[torch.Tensor], MyFNetForPreTrainingOutput]:
         r"""
             labels (`torch.LongTensor` of shape `(batch_size, sequence_length)`, *optional*):
                 Labels for computing the masked language modeling loss. Indices should be in `[-100, 0, ...,
@@ -984,7 +984,7 @@ class BertForPreTraining(BertPreTrainedModel):
             output = (prediction_scores, seq_relationship_score) + outputs[2:]
             return ((total_loss,) + output) if total_loss is not None else output
 
-        return BertForPreTrainingOutput(
+        return MyFNetForPreTrainingOutput(
             loss=total_loss,
             prediction_logits=prediction_scores,
             seq_relationship_logits=seq_relationship_score,
@@ -996,7 +996,7 @@ class BertForPreTraining(BertPreTrainedModel):
 @add_start_docstrings(
     """Bert Model with a `language modeling` head on top for CLM fine-tuning.""", BERT_START_DOCSTRING
 )
-class BertLMHeadModel(BertPreTrainedModel):
+class MyFNetLMHeadModel(MyFNetPreTrainedModel):
 
     _keys_to_ignore_on_load_unexpected = [r"pooler"]
     _keys_to_ignore_on_load_missing = [r"position_ids", r"predictions.decoder.bias", r"cls.predictions.decoder.weight"]
@@ -1007,8 +1007,8 @@ class BertLMHeadModel(BertPreTrainedModel):
         if not config.is_decoder:
             logger.warning("If you want to use `BertLMHeadModel` as a standalone, add `is_decoder=True.`")
 
-        self.bert = BertModel(config, add_pooling_layer=False)
-        self.cls = BertOnlyMLMHead(config)
+        self.bert = MyFNetModel(config, add_pooling_layer=False)
+        self.cls = MyFNetOnlyMLMHead(config)
 
         # Initialize weights and apply final processing
         self.post_init()
@@ -1137,7 +1137,7 @@ class BertLMHeadModel(BertPreTrainedModel):
 
 
 @add_start_docstrings("""Bert Model with a `language modeling` head on top.""", BERT_START_DOCSTRING)
-class BertForMaskedLM(BertPreTrainedModel):
+class MyFNetForMaskedLM(MyFNetPreTrainedModel):
 
     _keys_to_ignore_on_load_unexpected = [r"pooler"]
     _keys_to_ignore_on_load_missing = [r"position_ids", r"predictions.decoder.bias", r"cls.predictions.decoder.weight"]
@@ -1151,8 +1151,8 @@ class BertForMaskedLM(BertPreTrainedModel):
                 "bi-directional self-attention."
             )
 
-        self.bert = BertModel(config, add_pooling_layer=False)
-        self.cls = BertOnlyMLMHead(config)
+        self.bert = MyFNetModel(config, add_pooling_layer=False)
+        self.cls = MyFNetOnlyMLMHead(config)
 
         # Initialize weights and apply final processing
         self.post_init()
@@ -1249,12 +1249,12 @@ class BertForMaskedLM(BertPreTrainedModel):
     """Bert Model with a `next sentence prediction (classification)` head on top.""",
     BERT_START_DOCSTRING,
 )
-class BertForNextSentencePrediction(BertPreTrainedModel):
+class MyFNetForNextSentencePrediction(MyFNetPreTrainedModel):
     def __init__(self, config):
         super().__init__(config)
 
-        self.bert = BertModel(config)
-        self.cls = BertOnlyNSPHead(config)
+        self.bert = MyFNetModel(config)
+        self.cls = MyFNetOnlyNSPHead(config)
 
         # Initialize weights and apply final processing
         self.post_init()
@@ -1354,13 +1354,13 @@ class BertForNextSentencePrediction(BertPreTrainedModel):
     """,
     BERT_START_DOCSTRING,
 )
-class BertForSequenceClassification(BertPreTrainedModel):
+class MyFNetForSequenceClassification(MyFNetPreTrainedModel):
     def __init__(self, config):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.config = config
 
-        self.bert = BertModel(config)
+        self.bert = MyFNetModel(config)
         classifier_dropout = (
             config.classifier_dropout if config.classifier_dropout is not None else config.hidden_dropout_prob
         )
@@ -1457,11 +1457,11 @@ class BertForSequenceClassification(BertPreTrainedModel):
     """,
     BERT_START_DOCSTRING,
 )
-class BertForMultipleChoice(BertPreTrainedModel):
+class MyFNetForMultipleChoice(MyFNetPreTrainedModel):
     def __init__(self, config):
         super().__init__(config)
 
-        self.bert = BertModel(config)
+        self.bert = MyFNetModel(config)
         classifier_dropout = (
             config.classifier_dropout if config.classifier_dropout is not None else config.hidden_dropout_prob
         )
@@ -1551,7 +1551,7 @@ class BertForMultipleChoice(BertPreTrainedModel):
     """,
     BERT_START_DOCSTRING,
 )
-class BertForTokenClassification(BertPreTrainedModel):
+class MyFNetForTokenClassification(MyFNetPreTrainedModel):
 
     _keys_to_ignore_on_load_unexpected = [r"pooler"]
 
@@ -1559,7 +1559,7 @@ class BertForTokenClassification(BertPreTrainedModel):
         super().__init__(config)
         self.num_labels = config.num_labels
 
-        self.bert = BertModel(config, add_pooling_layer=False)
+        self.bert = MyFNetModel(config, add_pooling_layer=False)
         classifier_dropout = (
             config.classifier_dropout if config.classifier_dropout is not None else config.hidden_dropout_prob
         )
@@ -1637,7 +1637,7 @@ class BertForTokenClassification(BertPreTrainedModel):
     """,
     BERT_START_DOCSTRING,
 )
-class BertForQuestionAnswering(BertPreTrainedModel):
+class MyFNetForQuestionAnswering(MyFNetPreTrainedModel):
 
     _keys_to_ignore_on_load_unexpected = [r"pooler"]
 
@@ -1645,7 +1645,7 @@ class BertForQuestionAnswering(BertPreTrainedModel):
         super().__init__(config)
         self.num_labels = config.num_labels
 
-        self.bert = BertModel(config, add_pooling_layer=False)
+        self.bert = MyFNetModel(config, add_pooling_layer=False)
         self.qa_outputs = nn.Linear(config.hidden_size, config.num_labels)
 
         # Initialize weights and apply final processing
