@@ -50,7 +50,7 @@ from ...utils import (
     logging,
     replace_return_docstrings,
 )
-from .configuration_t5 import T5Config
+from .configuration_t5_kv import T5Config
 
 
 logger = logging.get_logger(__name__)

@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from . import (
+    t5_kv,
     albert,
     align,
     altclip,

@@ -47,7 +47,7 @@ from ...utils import (
     replace_return_docstrings,
 )
 from ...utils.model_parallel_utils import assert_device_map, get_device_map
-from .configuration_t5 import T5Config
+from .configuration_t5_kv import T5Config
 
 
 logger = logging.get_logger(__name__)

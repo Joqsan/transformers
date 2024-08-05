@@ -43,7 +43,7 @@ from ...modeling_flax_utils import (
     overwrite_call_docstring,
 )
 from ...utils import add_start_docstrings, add_start_docstrings_to_model_forward, logging, replace_return_docstrings
-from .configuration_t5 import T5Config
+from .configuration_t5_kv import T5Config
 
 
 logger = logging.get_logger(__name__)

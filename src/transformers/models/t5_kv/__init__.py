@@ -25,7 +25,7 @@ from ...utils import (
 )
 
 
-_import_structure = {"configuration_t5": ["T5Config", "T5OnnxConfig"]}
+_import_structure = {"configuration_t5_kv": ["T5Config", "T5OnnxConfig"]}
 
 try:
     if not is_sentencepiece_available():
@@ -33,7 +33,7 @@ try:
 except OptionalDependencyNotAvailable:
     pass
 else:
-    _import_structure["tokenization_t5"] = ["T5Tokenizer"]
+    _import_structure["tokenization_t5_kv"] = ["T5Tokenizer"]
 
 try:
     if not is_tokenizers_available():
@@ -41,7 +41,7 @@ try:
 except OptionalDependencyNotAvailable:
     pass
 else:
-    _import_structure["tokenization_t5_fast"] = ["T5TokenizerFast"]
+    _import_structure["tokenization_t5_kv_fast"] = ["T5TokenizerFast"]
 
 try:
     if not is_torch_available():
@@ -49,7 +49,7 @@ try:
 except OptionalDependencyNotAvailable:
     pass
 else:
-    _import_structure["modeling_t5"] = [
+    _import_structure["modeling_t5_kv"] = [
         "T5EncoderModel",
         "T5ForConditionalGeneration",
         "T5Model",
@@ -88,7 +88,7 @@ else:
 
 
 if TYPE_CHECKING:
-    from .configuration_t5 import T5Config, T5OnnxConfig
+    from .configuration_t5_kv import T5Config, T5OnnxConfig
 
     try:
         if not is_sentencepiece_available():
@@ -96,7 +96,7 @@ if TYPE_CHECKING:
     except OptionalDependencyNotAvailable:
         pass
     else:
-        from .tokenization_t5 import T5Tokenizer
+        from .tokenization_t5_kv import T5Tokenizer
 
     try:
         if not is_tokenizers_available():
@@ -104,7 +104,7 @@ if TYPE_CHECKING:
     except OptionalDependencyNotAvailable:
         pass
     else:
-        from .tokenization_t5_fast import T5TokenizerFast
+        from .tokenization_t5_kv_fast import T5TokenizerFast
 
     try:
         if not is_torch_available():
@@ -112,7 +112,7 @@ if TYPE_CHECKING:
     except OptionalDependencyNotAvailable:
         pass
     else:
-        from .modeling_t5 import (
+        from .modeling_t5_kv import (
             T5EncoderModel,
             T5ForConditionalGeneration,
             T5ForQuestionAnswering,
@@ -129,7 +129,7 @@ if TYPE_CHECKING:
     except OptionalDependencyNotAvailable:
         pass
     else:
-        from .modeling_tf_t5 import (
+        from .modeling_tf_t5_kv import (
             TFT5EncoderModel,
             TFT5ForConditionalGeneration,
             TFT5Model,
@@ -142,7 +142,7 @@ if TYPE_CHECKING:
     except OptionalDependencyNotAvailable:
         pass
     else:
-        from .modeling_flax_t5 import (
+        from .modeling_flax_t5_kv import (
             FlaxT5EncoderModel,
             FlaxT5ForConditionalGeneration,
             FlaxT5Model,
