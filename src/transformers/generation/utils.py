@@ -2968,6 +2968,8 @@ class GenerationMixin:
         unfinished_sequences = torch.ones(batch_size, dtype=torch.long, device=input_ids.device)
         model_kwargs = self._get_initial_cache_position(input_ids, model_kwargs)
 
+        input_pos = cur_len
+        initial_pos = cur_len
         while self._has_unfinished_sequences(
             this_peer_finished, synced_gpus, device=input_ids.device, cur_len=cur_len, max_length=max_length
         ):
@@ -2978,8 +2980,12 @@ class GenerationMixin:
             model_inputs.update({"output_attentions": output_attentions} if output_attentions else {})
             model_inputs.update({"output_hidden_states": output_hidden_states} if output_hidden_states else {})
 
+            model_inputs['input_pos'] = input_pos
+            model_inputs['initial_pos'] = initial_pos
             # forward pass to get next token
             outputs = self(**model_inputs, return_dict=True)
+            
+            input_pos += 1
 
             if synced_gpus and this_peer_finished:
                 continue  # don't waste resources running the code we don't need
