@@ -546,6 +546,8 @@ class GenerationMixin:
         model_input_name = model_input_name if model_input_name is not None else self.main_input_name
         encoder_kwargs["return_dict"] = True
         encoder_kwargs[model_input_name] = inputs_tensor
+        logger.info("Calling Encoder T5Stack")
+        encoder_kwargs['input_pos'] = torch.tensor([inputs_tensor.shape[1] - 1], device=inputs_tensor.device, dtype=torch.int)
         model_kwargs["encoder_outputs"]: ModelOutput = encoder(**encoder_kwargs)
 
         return model_kwargs
@@ -1682,6 +1684,11 @@ class GenerationMixin:
                     - [`~generation.GenerateEncoderDecoderOutput`],
                     - [`~generation.GenerateBeamEncoderDecoderOutput`]
         """
+        # 0. If t5_kv.modeling_t5_kv.T5ForConditionalGeneration setup KV cache
+        if hasattr(self, 'own_kv_cache') and self.own_kv_cache:
+            max_length = int(kwargs['max_length'])
+            self.setup_caches(max_batch_size=1, max_seq_length=max_length)
+        
         # 1. Handle `generation_config` and kwargs that might update it, and validate the `.generate()` call
         self._validate_model_class()
         tokenizer = kwargs.pop("tokenizer", None)  # Pull this out first, we only use it for stopping criteria
@@ -2968,11 +2975,12 @@ class GenerationMixin:
         unfinished_sequences = torch.ones(batch_size, dtype=torch.long, device=input_ids.device)
         model_kwargs = self._get_initial_cache_position(input_ids, model_kwargs)
 
-        input_pos = cur_len
+        input_pos = torch.tensor([0], device=input_ids.device, dtype=torch.int)
         initial_pos = cur_len
         while self._has_unfinished_sequences(
             this_peer_finished, synced_gpus, device=input_ids.device, cur_len=cur_len, max_length=max_length
         ):
+            logger.info(f"current input_ids: {input_ids}")
             # prepare model inputs
             model_inputs = self.prepare_inputs_for_generation(input_ids, **model_kwargs)
 
@@ -2983,6 +2991,7 @@ class GenerationMixin:
             model_inputs['input_pos'] = input_pos
             model_inputs['initial_pos'] = initial_pos
             # forward pass to get next token
+            
             outputs = self(**model_inputs, return_dict=True)
             
             input_pos += 1
