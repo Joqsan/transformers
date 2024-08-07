@@ -48,7 +48,7 @@ log_levels = {
     "critical": logging.CRITICAL,
 }
 
-_default_log_level = logging.WARNING
+_default_log_level = logging.INFO
 
 _tqdm_active = not hf_hub_utils.are_progress_bars_disabled()
 
